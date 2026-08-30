@@ -241,20 +241,56 @@ with tab3:
             st.plotly_chart(fig_canales, use_container_width=True)
 
 # ==========================================
-# PESTAÑA 4: ANÁLISIS GEOGRÁFICO
+# PESTAÑA 4: ANÁLISIS GEOGRÁFICO (Con Mapa)
 # ==========================================
 with tab4:
-    st.subheader("Dispersión de Distancia (Emisor vs Domicilio)")
-    st.markdown("¿El fraude ocurre cuando el cliente está lejos de su ubicación habitual?")
+    st.subheader("📍 Geolocalización y Dispersión de Transacciones")
+    st.markdown("Mapa de ubicación del emisor diferenciando las transacciones legítimas de los fraudes en tiempo real.")
+    
     if casos_fraude > 0:
+        # 1. Mapa de Dispersión Geográfica (Scatter Mapbox)
+        fig_map = px.scatter_mapbox(
+            df,
+            lat="sender_location_lat",
+            lon="sender_location_lon",
+            color="is_fraud",
+            color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
+            size="amount",
+            hover_name="fraud_type",
+            hover_data={
+                "amount": ":$,.0f CLP",
+                "distance_from_home": ":.1f km",
+                "is_fraud": True,
+                "sender_location_lat": False,
+                "sender_location_lon": False
+            },
+            zoom=3,
+            center={"lat": -35.6751, "lon": -71.5430}, # Centrado en Chile
+            mapbox_style="carto-darkmatter", # Estilo oscuro elegante
+            title="Distribución Geográfica del Emisor (Rojo = Fraude | Azul = Legítimo)"
+        )
+        
+        fig_map.update_layout(
+            height=500,
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        st.plotly_chart(fig_map, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # 2. Histograma Complementario (Distancia al Domicilio)
+        st.subheader("📏 Distribución de Distancia al Domicilio")
         fig_dist = px.histogram(
-            df, x='distance_from_home', color='is_fraud', barmode='overlay',
-            title="Distribución de Distancia al Domicilio (Log Scale)",
-            labels={'distance_from_home': 'Distancia al Domicilio (km)', 'is_fraud': 'Es Fraude (1=Sí)'},
+            df, 
+            x='distance_from_home', 
+            color='is_fraud', 
+            barmode='overlay',
+            labels={'distance_from_home': 'Distancia al Domicilio (km)', 'is_fraud': 'Es Fraude'},
             color_discrete_map={0: '#3B82F6', 1: '#EF4444'},
             opacity=0.7
         )
-        fig_dist.update_layout(yaxis_type="log") # Escala logarítmica para ver mejor los datos
+        fig_dist.update_layout(yaxis_type="log", height=350)
         st.plotly_chart(fig_dist, use_container_width=True)
+        
     else:
-        st.info("No hay datos suficientes.")
+        st.info("No hay datos geográficos suficientes para mostrar.")
