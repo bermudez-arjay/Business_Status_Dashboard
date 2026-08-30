@@ -248,20 +248,29 @@ with tab4:
     st.markdown("Mapa de ubicación del emisor diferenciando las transacciones legítimas de los fraudes en tiempo real.")
     
     if casos_fraude > 0:
-        # Usamos px.scatter_map (o compatibilidad con Plotly moderno)
+        # Preparamos una copia de los datos con nombres explícitos para la leyenda y color
+        df_geo = df.copy()
+        df_geo['Estado_Transaccion'] = df_geo['is_fraud'].map({0: 'Legítima', 1: 'Fraude'})
+        
+        # Mapa de colores explícito
+        color_map = {
+            'Legítima': '#3B82F6',  # Azul
+            'Fraude': '#EF4444'     # Rojo
+        }
+        
         try:
             fig_map = px.scatter_map(
-                df,
+                df_geo,
                 lat="sender_location_lat",
                 lon="sender_location_lon",
-                color="is_fraud",
-                color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
+                color="Estado_Transaccion",
+                color_discrete_map=color_map,
                 size="amount",
                 hover_name="fraud_type",
                 hover_data={
                     "amount": ":$,.0f CLP",
                     "distance_from_home": ":.1f km",
-                    "is_fraud": True,
+                    "Estado_Transaccion": True,
                     "sender_location_lat": False,
                     "sender_location_lon": False
                 },
@@ -271,19 +280,19 @@ with tab4:
                 title="Distribución Geográfica del Emisor (Rojo = Fraude | Azul = Legítimo)"
             )
         except AttributeError:
-            # Fallback si estás ejecutando una versión previa de Plotly (v5.x)
+            # Fallback para Plotly v5.x
             fig_map = px.scatter_mapbox(
-                df,
+                df_geo,
                 lat="sender_location_lat",
                 lon="sender_location_lon",
-                color="is_fraud",
-                color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
+                color="Estado_Transaccion",
+                color_discrete_map=color_map,
                 size="amount",
                 hover_name="fraud_type",
                 hover_data={
                     "amount": ":$,.0f CLP",
                     "distance_from_home": ":.1f km",
-                    "is_fraud": True,
+                    "Estado_Transaccion": True,
                     "sender_location_lat": False,
                     "sender_location_lon": False
                 },
@@ -295,24 +304,29 @@ with tab4:
         
         fig_map.update_layout(
             height=500,
-            margin=dict(l=0, r=0, t=40, b=0)
+            margin=dict(l=0, r=0, t=40, b=0),
+            legend_title_text='Estado'
         )
         st.plotly_chart(fig_map, use_container_width=True)
         
         st.markdown("---")
         
-        # Histograma Complementario
+        # Histograma Complementario ajustado a los mismos colores
         st.subheader("📏 Distribución de Distancia al Domicilio")
         fig_dist = px.histogram(
-            df, 
+            df_geo, 
             x='distance_from_home', 
-            color='is_fraud', 
+            color='Estado_Transaccion', 
             barmode='overlay',
-            labels={'distance_from_home': 'Distancia al Domicilio (km)', 'is_fraud': 'Es Fraude'},
-            color_discrete_map={0: '#3B82F6', 1: '#EF4444'},
+            labels={'distance_from_home': 'Distancia al Domicilio (km)', 'Estado_Transaccion': 'Estado'},
+            color_discrete_map=color_map,
             opacity=0.7
         )
-        fig_dist.update_layout(yaxis_type="log", height=350)
+        fig_dist.update_layout(
+            yaxis_type="log", 
+            height=350,
+            legend_title_text='Estado'
+        )
         st.plotly_chart(fig_dist, use_container_width=True)
         
     else:
