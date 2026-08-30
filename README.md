@@ -1,0 +1,1 @@
+Visualizador de la situación actual del negocio construido con Python, Pandas y Streamlit.
