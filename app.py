@@ -244,7 +244,7 @@ with tab3:
 # PESTAÑA 4: ANÁLISIS GEOGRÁFICO (Con Mapa)
 # ==========================================
 with tab4:
-    st.subheader("📍 Geolocalización y Dispersión de Transacciones")
+    st.subheader("Geolocalización y Dispersión de Transacciones")
     st.markdown("Mapa de ubicación del emisor diferenciando las transacciones legítimas de los fraudes en tiempo real.")
     
     if casos_fraude > 0:
@@ -312,7 +312,7 @@ with tab4:
         st.markdown("---")
         
         # Histograma Complementario ajustado a los mismos colores
-        st.subheader("📏 Distribución de Distancia al Domicilio")
+        st.subheader("Distribución de Distancia al Domicilio")
         fig_dist = px.histogram(
             df_geo, 
             x='distance_from_home', 
