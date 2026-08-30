@@ -248,27 +248,50 @@ with tab4:
     st.markdown("Mapa de ubicación del emisor diferenciando las transacciones legítimas de los fraudes en tiempo real.")
     
     if casos_fraude > 0:
-        # 1. Mapa de Dispersión Geográfica (Scatter Mapbox)
-        fig_map = px.scatter_mapbox(
-            df,
-            lat="sender_location_lat",
-            lon="sender_location_lon",
-            color="is_fraud",
-            color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
-            size="amount",
-            hover_name="fraud_type",
-            hover_data={
-                "amount": ":$,.0f CLP",
-                "distance_from_home": ":.1f km",
-                "is_fraud": True,
-                "sender_location_lat": False,
-                "sender_location_lon": False
-            },
-            zoom=3,
-            center={"lat": -35.6751, "lon": -71.5430}, # Centrado en Chile
-            mapbox_style="carto-darkmatter", # Estilo oscuro elegante
-            title="Distribución Geográfica del Emisor (Rojo = Fraude | Azul = Legítimo)"
-        )
+        # Usamos px.scatter_map (o compatibilidad con Plotly moderno)
+        try:
+            fig_map = px.scatter_map(
+                df,
+                lat="sender_location_lat",
+                lon="sender_location_lon",
+                color="is_fraud",
+                color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
+                size="amount",
+                hover_name="fraud_type",
+                hover_data={
+                    "amount": ":$,.0f CLP",
+                    "distance_from_home": ":.1f km",
+                    "is_fraud": True,
+                    "sender_location_lat": False,
+                    "sender_location_lon": False
+                },
+                zoom=3,
+                center={"lat": -35.6751, "lon": -71.5430}, # Centrado en Chile
+                map_style="carto-darkmatter", # Estilo oscuro
+                title="Distribución Geográfica del Emisor (Rojo = Fraude | Azul = Legítimo)"
+            )
+        except AttributeError:
+            # Fallback si estás ejecutando una versión previa de Plotly (v5.x)
+            fig_map = px.scatter_mapbox(
+                df,
+                lat="sender_location_lat",
+                lon="sender_location_lon",
+                color="is_fraud",
+                color_discrete_map={0: "#3B82F6", 1: "#EF4444"},
+                size="amount",
+                hover_name="fraud_type",
+                hover_data={
+                    "amount": ":$,.0f CLP",
+                    "distance_from_home": ":.1f km",
+                    "is_fraud": True,
+                    "sender_location_lat": False,
+                    "sender_location_lon": False
+                },
+                zoom=3,
+                center={"lat": -35.6751, "lon": -71.5430},
+                mapbox_style="carto-darkmatter",
+                title="Distribución Geográfica del Emisor (Rojo = Fraude | Azul = Legítimo)"
+            )
         
         fig_map.update_layout(
             height=500,
@@ -278,7 +301,7 @@ with tab4:
         
         st.markdown("---")
         
-        # 2. Histograma Complementario (Distancia al Domicilio)
+        # Histograma Complementario
         st.subheader("📏 Distribución de Distancia al Domicilio")
         fig_dist = px.histogram(
             df, 
