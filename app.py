@@ -198,7 +198,7 @@ with tab2:
         st.info("No hay datos suficientes.")
         
     st.markdown("---")
-    st.subheader("⏳ Desviación del Comportamiento Habitual (Monto vs Promedio Últimos 7 Días)")
+    st.subheader("Desviación del Comportamiento Habitual (Monto vs Promedio Últimos 7 Días)")
     if casos_fraude > 0:
         fig_scatter = px.scatter(
             fraudes, x='avg_amount_last_7d', y='amount', color='fraud_type',
@@ -229,7 +229,7 @@ with tab3:
             st.plotly_chart(fig_cambios, use_container_width=True)
             
     with col_riesgo2:
-        st.subheader("Incidencia de Canales de Comunicación (Ingeniería Social)")
+        st.subheader("Incidencia de Canales de Comunicación (Ingeniería Social")
         if casos_fraude > 0:
             canales = fraudes.groupby('sender_communication_channel_flag').size().reset_index(name='Casos')
             fig_canales = px.bar(
